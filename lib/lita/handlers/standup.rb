@@ -41,10 +41,7 @@ module Lita
         @users.each do |user|
           source = Lita::Source.new(user: user)
           robot.send_message(source, "Time for standup!")
-          robot.send_message(source, "Please tell me what you did yesterday,
-                                    what you're doing now, and what you're
-                                    working on today. Please prepend your
-                                    answer with 'standup response'")
+          robot.send_message(source, render_template("instruction"))
         end
       end
 
@@ -62,6 +59,3 @@ module Lita
     Lita.register_handler(Standup)
   end
 end
-
-
-
