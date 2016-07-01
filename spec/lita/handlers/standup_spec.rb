@@ -1,8 +1,7 @@
 require "spec_helper"
 
 describe Lita::Handlers::Standup, lita_handler: true do
-
-  it { is_expected.to route_command("start standup now").with_authorization_for(:standup_admins).to(:begin_standup) }
+  it { is_expected.to route_command("start standup").with_authorization_for(:standup_admins).to(:begin_standup) }
   it { is_expected.to route_command("standup response 1:a2:b3:c").to(:process_standup) }
 
 
@@ -23,26 +22,26 @@ describe Lita::Handlers::Standup, lita_handler: true do
     people.each { |person| robot.auth.add_user_to_group!(person, :standup_admins) }
   end
 
-  describe '#begin_standup' do
+  context '#begin_standup' do
     it 'messages each user and prompts for stand up options' do
-      send_command("start standup now", as: @jimmy)
-      expect(replies.size).to eq(6) #Jimmy, Tristan, and Mitch
+      send_command("start standup", as: @jimmy)
+      expect(replies.size).to eq(9) #Jimmy, Tristan, and Mitch
 
     end
 
     it 'properly queues an email job upon initiation' do
       registry.config.handlers.standup.email_subject_line = "This is a test of Lita-Standup"
       registry.config.handlers.standup.time_to_respond = 60
-      send_command("start standup now", as: @jimmy)
+      send_command("start standup", as: @jimmy)
       send_command("standup response 1: everything 2:everything else 3:nothing", as: @jimmy)
       expect(Celluloid::Actor.registered.first.to_s).to end_with("summary_email_job")
     end
   end
 
-  describe '#process_standup' do
+  context '#process_standup' do
     it 'Emails a compendium of responses out after users reply' do
       registry.config.handlers.standup.time_to_respond = (1.0/60.0)
-      send_command("start standup now", as: @jimmy)
+      send_command("start standup", as: @jimmy)
       send_command("standup response 1: linguistics 2: more homework 3: being in seattle", as: @tristan)
       send_command("standup response 1: stitchfix 2: more stitchfix 3: gaining weight", as: @mitch)
       send_command("standup response 1: lita 2: Rust else 3: nothing", as: @jimmy)
@@ -53,5 +52,8 @@ describe Lita::Handlers::Standup, lita_handler: true do
     end
     it { should have_sent_email.with_subject("Standup summary for #{Time.now.strftime('%m/%d')}") }
   end
+
+  # TO DO
+  # Fix test + write test for list standups
 
 end

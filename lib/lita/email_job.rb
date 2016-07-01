@@ -1,14 +1,12 @@
 require 'mail'
 require 'sucker_punch'
+require 'sucker_punch/async_syntax'
+require 'rufus-scheduler'
 
 class SummaryEmailJob
   include SuckerPunch::Job
 
-  def later(sec, payload)
-    sec == 0 ? preform(payload) : after(sec) { preform(payload) } #0 seconds not handled well by #after
-  end
-
-  def preform(payload)
+  def perform(payload)
     redis = payload[:redis]
     config = payload[:config]
 
@@ -41,7 +39,6 @@ class SummaryEmailJob
 
     if mail.deliver!
       Lita.logger.info("Sent standup email to #{mail.to} at #{Time.now}")
-      redis.keys.each{ |key| redis.del(key) }
     end
   end
 

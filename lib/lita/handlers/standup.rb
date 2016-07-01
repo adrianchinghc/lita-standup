@@ -2,7 +2,7 @@ module Lita
   module Handlers
     class Standup < Handler
       # General settings
-      config :time_to_respond, types: [Integer, Float], default: 60 #minutes
+      config :time_to_respond, types: [Integer, Float], default: 60, required: true #minutes
       config :summary_email_recipients, type: Array, default: ['you@company.com'], required: true
       config :name_of_auth_group, type: Symbol, default: :standup_participants, required: true
 
@@ -17,22 +17,53 @@ module Lita
       config :robot_email_address, type: String, default: 'noreply@lita.com', required: true
       config :email_subject_line, type: String, default: "Standup summary for --today--", required: true  #interpolated at runtime
 
-      route %r{^start standup now}i, :begin_standup, command: true, restrict_to: :standup_admins
+      route %r{^start standup}i, :begin_standup, command: true, restrict_to: :standup_admins,
+            help: { 'start standup' => 'start standup' }
+      route %r{^list standups}i, :list_standups, command: true, restrict_to: :standup_admins,
+            help: { 'list standups' => 'show all standups' }
       route %r{standup response (1.*)(2.*)(3.*)}i, :process_standup, command: true
 
       def begin_standup(request)
+        redis.keys.each{ |key| redis.del(key) } unless redis.keys.empty?
         redis.set('last_standup_started_at', Time.now)
         find_and_create_users
         message_all_users
-        SummaryEmailJob.new().async.later(config.time_to_respond * 60, {redis: redis, config: config})
+        sec = config.time_to_respond * 60
+        SummaryEmailJob.perform_in(sec, {redis: redis, config: config})
+        24_hours = (1439 - config.time_to_respond) * 60
+        after(24_hours) { |time| redis.keys.each{ |key| redis.del(key) } }
       end
 
       def process_standup(request)
         return unless timing_is_right?
         request.reply('Response recorded. Thanks for partipating')
         date_string = Time.now.strftime('%Y%m%d')
-        user_name = request.user.name.split(' ').join('_') #lol
+        user_name = request.user.name
         redis.set(date_string + '-' + user_name, request.matches.first)
+      end
+
+      def list_standups(request)
+        if redis.get("last_standup_started_at")
+          response_prefix = Date.parse(redis.get("last_standup_started_at")).strftime('%Y%m%d')
+          standup_count = redis.keys.select {|x| x.to_s.include? response_prefix }.count
+          if standup_count > 0
+            message = "Standups found: #{standup_count} \n"
+            message << "Here they are: \n"
+            standup = ''
+            redis.keys.each do |key|
+              if key.to_s.include? response_prefix
+                standup += key.gsub(response_prefix + '-', "")
+                standup += "\n"
+                standup += MultiJson.load(redis.get(key)).join("\n")
+                standup += "\n"
+              end
+            end
+            message << standup
+          end
+        else
+          message = "No standups created yet. Use command: start standup"
+        end
+        request.reply message
       end
 
       private
