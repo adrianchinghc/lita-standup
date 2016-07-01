@@ -42,6 +42,7 @@ module Lita
           source = Lita::Source.new(user: user)
           robot.send_message(source, "Time for standup!")
           robot.send_message(source, render_template("instruction"))
+          robot.send_message(source, "Example: standup response 1: Finished this gem. 2: Make these docs a little better. 3: Wife is making cookies and it's hard to focus.")
         end
       end
 
