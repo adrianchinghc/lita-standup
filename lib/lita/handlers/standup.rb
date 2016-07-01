@@ -30,8 +30,8 @@ module Lita
         message_all_users
         sec = config.time_to_respond * 60
         SummaryEmailJob.perform_in(sec, {redis: redis, config: config})
-        24_hours = (1439 - config.time_to_respond) * 60
-        after(24_hours) { |time| redis.keys.each{ |key| redis.del(key) } }
+        one_day = (1439 - config.time_to_respond) * 60
+        after(one_day) { |time| redis.keys.each{ |key| redis.del(key) } }
       end
 
       def process_standup(request)
