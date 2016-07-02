@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe Lita::Handlers::Standup, lita_handler: true do
-  it { is_expected.to route_command("start standup").with_authorization_for(:standup_admins).to(:begin_standup) }
+  it { is_expected.to route_command("start").with_authorization_for(:standup_admins).to(:begin_standup) }
   it { is_expected.to route_command("standup response 1:a2:b3:c").to(:process_standup) }
 
 
@@ -24,7 +24,7 @@ describe Lita::Handlers::Standup, lita_handler: true do
 
   context '#begin_standup' do
     it 'messages each user and prompts for stand up options' do
-      send_command("start standup", as: @jimmy)
+      send_command("start", as: @jimmy)
       expect(replies.size).to eq(9) #Jimmy, Tristan, and Mitch
 
     end
@@ -32,7 +32,7 @@ describe Lita::Handlers::Standup, lita_handler: true do
     it 'properly queues an email job upon initiation' do
       registry.config.handlers.standup.email_subject_line = "This is a test of Lita-Standup"
       registry.config.handlers.standup.time_to_respond = 60
-      send_command("start standup", as: @jimmy)
+      send_command("start", as: @jimmy)
       send_command("standup response 1: everything 2:everything else 3:nothing", as: @jimmy)
       expect(Celluloid::Actor.registered.first.to_s).to end_with("summary_email_job")
     end
@@ -41,7 +41,7 @@ describe Lita::Handlers::Standup, lita_handler: true do
   context '#process_standup' do
     it 'Emails a compendium of responses out after users reply' do
       registry.config.handlers.standup.time_to_respond = (1.0/60.0)
-      send_command("start standup", as: @jimmy)
+      send_command("start", as: @jimmy)
       send_command("standup response 1: linguistics 2: more homework 3: being in seattle", as: @tristan)
       send_command("standup response 1: stitchfix 2: more stitchfix 3: gaining weight", as: @mitch)
       send_command("standup response 1: lita 2: Rust else 3: nothing", as: @jimmy)

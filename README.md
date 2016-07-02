@@ -47,13 +47,13 @@ end
 
 After you're properly configured, manage the auth groups you'll need to use this gem.  Add yourself (or whoever else will start the standup) to the auth group ```:standup_admins``` and all participants to the auth group ```:standup_participants``` (unless you overrode this default in the config.)
 
-To start the standup, give Lita the command ```Lita: start standup```.
+To start the standup, give Lita the command ```Lita start```.
 
 You'll get a private message asking for your answer.  Reply in the typical format (using numbers and colons) with 1: things you worked on yesterday, 2: things you'll be doing today, and 3: anything that's blocking you.  Example :```Lita: standup response 1: Finished this gem. 2: Make these docs a little better. 3: Wife is making cookies and it's hard to focus.```
 
 After the ```time_to_respond``` has elapsed, Lita will compile an email of the responses and send it to all the people in ```summary_email_recipients```.
 
-To list all standups in room, give Lita the command ```Lita: list standups```.
+To list all standups in room, give Lita the command ```Lita list```.
 
 All standups will be cleared automatically after 24 hours.
 

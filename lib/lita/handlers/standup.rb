@@ -17,10 +17,10 @@ module Lita
       config :robot_email_address, type: String, default: 'noreply@lita.com', required: true
       config :email_subject_line, type: String, default: "Standup summary for --today--", required: true  #interpolated at runtime
 
-      route %r{^start standup}i, :begin_standup, command: true, restrict_to: :standup_admins,
-            help: { 'start standup' => 'start standup' }
-      route %r{^list standups}i, :list_standups, command: true, restrict_to: :standup_admins,
-            help: { 'list standups' => 'show all standups' }
+      route %r{^start}i, :begin_standup, command: true, restrict_to: :standup_admins,
+            help: { 'start' => 'start standup' }
+      route %r{^list}i, :list_standups, command: true, restrict_to: :standup_admins,
+            help: { 'list' => 'show all standups' }
       route %r{standup response (1.*)(2.*)(3.*)}i, :process_standup, command: true
 
       def begin_standup(request)
@@ -61,7 +61,7 @@ module Lita
             message << standup
           end
         else
-          message = "No standups created yet. Use command: start standup"
+          message = "No standups created yet. Use command: start"
         end
         request.reply message
       end
