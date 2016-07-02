@@ -49,7 +49,7 @@ After you're properly configured, manage the auth groups you'll need to use this
 
 To start the standup, give Lita the command ```Lita start```.
 
-You'll get a private message asking for your answer.  Reply in the typical format (using numbers and colons) with 1: things you worked on yesterday, 2: things you'll be doing today, and 3: anything that's blocking you.  Example :```Lita: standup response 1: Finished this gem. 2: Make these docs a little better. 3: Wife is making cookies and it's hard to focus.```
+You'll get a private message asking for your answer.  Reply in the typical format (using numbers and colons) with 1: things you worked on yesterday, 2: things you'll be doing today, and 3: anything that's blocking you.  Example :```Lita response 1: Finished this gem. 2: Make these docs a little better. 3: Wife is making cookies and it's hard to focus.```
 
 After the ```time_to_respond``` has elapsed, Lita will compile an email of the responses and send it to all the people in ```summary_email_recipients```.
 

@@ -21,7 +21,7 @@ module Lita
             help: { 'start' => 'start standup' }
       route %r{^list}i, :list_standups, command: true, restrict_to: :standup_admins,
             help: { 'list' => 'show all standups' }
-      route %r{standup response (1.*)(2.*)(3.*)}i, :process_standup, command: true
+      route %r{response (1.*)(2.*)(3.*)}i, :process_standup, command: true
 
       def begin_standup(request)
         redis.keys.each{ |key| redis.del(key) } unless redis.keys.empty?
@@ -43,23 +43,21 @@ module Lita
       end
 
       def list_standups(request)
-        if redis.get("last_standup_started_at")
-          response_prefix = Date.parse(redis.get("last_standup_started_at")).strftime('%Y%m%d')
-          standup_count = redis.keys.select {|x| x.to_s.include? response_prefix }.count
-          if standup_count > 0
-            message = "Standups found: #{standup_count} \n"
-            message << "Here they are: \n"
-            standup = ''
-            redis.keys.each do |key|
-              if key.to_s.include? response_prefix
-                standup += key.gsub(response_prefix + '-', "")
-                standup += "\n"
-                standup += MultiJson.load(redis.get(key)).join("\n")
-                standup += "\n"
-              end
+        response_prefix = Date.parse(redis.get("last_standup_started_at")).strftime('%Y%m%d')
+        standup_count = redis.keys.select {|x| x.to_s.include? response_prefix }.count
+        if redis.get("last_standup_started_at") && standup_count > 0
+          message = "Standups found: #{standup_count} \n"
+          message << "Here they are: \n"
+          standup = ''
+          redis.keys.each do |key|
+            if key.to_s.include? response_prefix
+              standup += key.gsub(response_prefix + '-', "")
+              standup += "\n"
+              standup += MultiJson.load(redis.get(key)).join("\n")
+              standup += "\n"
             end
-            message << standup
           end
+          message << standup
         else
           message = "No standups created yet. Use command: start"
         end
@@ -72,8 +70,8 @@ module Lita
         @users.each do |user|
           source = Lita::Source.new(user: user)
           robot.send_message(source, "Time for standup!")
-          robot.send_message(source, render_template("instruction"))
-          robot.send_message(source, "Example: standup response 1: Finished this gem. 2: Make these docs a little better. 3: Wife is making cookies and it's hard to focus.")
+          robot.send_message(source, render_template("instruction", robot: robot.name))
+          robot.send_message(source, "Example: #{robot.name} response 1: Finished this gem. 2: Make these docs a little better. 3: Wife is making cookies and it's hard to focus.")
         end
       end
 
