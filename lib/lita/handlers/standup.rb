@@ -15,7 +15,7 @@ module Lita
       config :authentication, type: String, required: true
       config :enable_starttls_auto, types: [TrueClass, FalseClass], required: true
       config :robot_email_address, type: String, default: 'noreply@lita.com', required: true
-      config :email_subject_line, type: String, default: "Standup summary for --today--", required: true  #interpolated at runtime
+      config :email_subject_line, type: String, default: "Standup summary for --room-- --today--", required: true  #interpolated at runtime
 
       route %r{^start}i, :begin_standup, command: true, restrict_to: :standup_admins,
             help: { 'start' => 'start standup' }
@@ -25,6 +25,7 @@ module Lita
 
       def begin_standup(request)
         redis.set('last_standup_started_at', Time.now)
+        redis.set('current_room', request.message.source.room)
         find_and_create_users
         message_all_users
         sec = config.time_to_respond * 60
@@ -34,9 +35,8 @@ module Lita
       end
 
       def process_standup(request)
-        puts "I'm In Human! $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
         return unless timing_is_right?
-        request.reply('Response recorded. Thanks for partipating')
+        request.reply 'Response recorded. Thanks for partipating'
         date_string = Time.now.strftime('%Y%m%d')
         user_name = request.user.name
         redis.set(date_string + '-' + user_name, request.matches.first)
@@ -80,11 +80,9 @@ module Lita
       end
 
       def timing_is_right?
-        puts "Again I'm here! $$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
-        puts "#{redis.get('last_standup_started_at')}"
-        return false if redis.get('last_standup_started_at').nil?
+        return false unless redis.get('last_standup_started_at')
         intitiated_at = Time.parse(redis.get('last_standup_started_at'))
-        Time.now > intitiated_at && intitiated_at + (60*config.time_to_respond) > Time.now
+        return Time.now > intitiated_at && intitiated_at + (60*config.time_to_respond) > Time.now
       end
 
     end

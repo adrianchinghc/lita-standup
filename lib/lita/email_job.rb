@@ -24,8 +24,10 @@ class SummaryEmailJob
       delivery_method(dev_meth , options)
     end
 
-    if config.email_subject_line == "Standup summary for --today--"
-      subject_line = config.email_subject_line.gsub(/--today--/, Time.now.strftime('%m/%d'))
+    if config.email_subject_line == "Standup summary for --room-- --today--"
+      room_name = redis.get('current_room').split('@').first.split("_").drop(1).map(&:capitalize).join(" ")
+      subject = config.email_subject_line.gsub(/--today--/, Time.now.strftime('%m/%d'))
+      subject_line = subject.gsub(/--room--/, room_name)
     else
       subject_line = config.email_subject_line
     end
