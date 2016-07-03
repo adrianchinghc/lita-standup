@@ -34,7 +34,6 @@ module Lita
       end
 
       def process_standup(request)
-        binding.pry
         puts "I'm In Human! $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
         return unless timing_is_right?
         request.reply('Response recorded. Thanks for partipating')
