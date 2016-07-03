@@ -34,6 +34,8 @@ module Lita
       end
 
       def process_standup(request)
+        binding.pry
+        puts "I'm In Human! $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
         return unless timing_is_right?
         request.reply('Response recorded. Thanks for partipating')
         date_string = Time.now.strftime('%Y%m%d')
@@ -79,6 +81,8 @@ module Lita
       end
 
       def timing_is_right?
+        puts "Again I'm here! $$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+        puts "#{redis.get('last_standup_started_at')}"
         return false if redis.get('last_standup_started_at').nil?
         intitiated_at = Time.parse(redis.get('last_standup_started_at'))
         Time.now > intitiated_at && intitiated_at + (60*config.time_to_respond) > Time.now
