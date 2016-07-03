@@ -24,7 +24,6 @@ module Lita
       route %r{response (1.*)(2.*)(3.*)}i, :process_standup, command: true
 
       def begin_standup(request)
-        redis.keys.each{ |key| redis.del(key) } unless redis.keys.empty?
         redis.set('last_standup_started_at', Time.now)
         find_and_create_users
         message_all_users
