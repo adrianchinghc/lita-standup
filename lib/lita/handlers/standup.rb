@@ -39,7 +39,7 @@ module Lita
         request.reply 'Response recorded. Thanks for partipating'
         date_string = Time.now.strftime('%Y%m%d')
         user_name = request.user.name
-        redis.set(date_string + '-' + user_name, request.matches.first << request.message.source.room)
+        redis.set(date_string + '-' + user_name, request.matches.first << redis.get('current_room'))
       end
 
       def list_standups(request)

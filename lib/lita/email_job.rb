@@ -19,7 +19,7 @@ class SummaryEmailJob
                 enable_starttls_auto: config.enable_starttls_auto}
 
     Mail.defaults do
-      ENV['MODE'] == 'test' ? dev_meth = ENV['MODE'] : dev_meth = :smtp
+      ENV['MODE'] == 'test' ? dev_meth = :test : dev_meth = :smtp
       delivery_method(dev_meth , options)
     end
 
@@ -46,13 +46,14 @@ class SummaryEmailJob
   def build_email_body_from_redis(redis)
     email_body = ''
     response_prefix = Date.parse(redis.get("last_standup_started_at")).strftime('%Y%m%d')
-    redis.keys.each do |key|
-      if key.to_s.include? response_prefix
-        email_body += key.gsub(Date.parse(redis.get("last_standup_started_at")).strftime('%Y%m%d') + '-', "")
-        email_body += "\n"
-        email_body += MultiJson.load(redis.get(key)).join("\n")
-        email_body += "\n"
-      end
+    standups = redis.keys.select do |key|
+      (key.include? (response_prefix)) && (redis.get(key).include? (redis.get('current_room')))
+    end
+    standups.each do |key|
+      email_body += key.gsub(response_prefix + '-', "")
+      email_body += "\n"
+      email_body += MultiJson.load(redis.get(key)).join("\n")
+      email_body += "\n"
     end
     email_body
   end
