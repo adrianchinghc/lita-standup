@@ -7,7 +7,6 @@ SimpleCov.formatters = [
 SimpleCov.start { add_filter "/spec/" }
 
 ENV["MODE"]="test"
-# require 'sucker_punch/testing/inline'
 require "lita-standup"
 require "lita/rspec"
 require "pry-byebug"
