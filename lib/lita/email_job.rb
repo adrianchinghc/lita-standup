@@ -1,7 +1,6 @@
 require 'mail'
 require 'sucker_punch'
 require 'sucker_punch/async_syntax'
-require 'rufus-scheduler'
 
 class SummaryEmailJob
   include SuckerPunch::Job
