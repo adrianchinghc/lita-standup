@@ -1,7 +1,7 @@
 # lita-standup
 
-[![Build Status](https://travis-ci.org/adrianchinghc/lita-standup.png?branch=master)](https://travis-ci.org/adrianchinghc/lita-standup)
-[![Coverage Status](https://coveralls.io/repos/adrianchinghc/lita-standup/badge.png)](https://coveralls.io/r/adrianchinghc/lita-standup)
+[![Build Status](https://travis-ci.org/adrianchinghc/lita-standup.svg?branch=master)](https://travis-ci.org/adrianchinghc/lita-standup)
+[![Coverage Status](https://coveralls.io/repos/github/adrianchinghc/lita-standup/badge.svg?branch=master)](https://coveralls.io/github/adrianchinghc/lita-standup?branch=master)
 <!-- [![Gem Version](https://badge.fury.io/rb/lita-standup.svg)](http://badge.fury.io/rb/lita-standup) -->
 
 Lita-standup is a handler for [Lita](https://github.com/jimmycuadra/lita), meant to automate the process of the daily standup, and help teams collaborate.
